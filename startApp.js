@@ -10,6 +10,7 @@ import cors from "cors";
 const app = express();
 
 import path from "path";
+import fs from "fs";
 import bodyParser from "body-parser";
 import session from "express-session";
 import cookieParser from "cookie-parser";
@@ -34,7 +35,11 @@ import { getPublicGraphqlSchema, getGraphqlSchema } from "./node/util/graphqlUti
 import uuid from "uuid/v4";
 import { getJrDbConnection } from "./node/util/dbUtils";
 
+import "svelte/register";
+const SvelteAppComponent = require("./svelte/App.svelte").default;
+
 import AWS from "aws-sdk";
+import { fstat } from "fs";
 AWS.config.region = "us-east-1";
 
 const IS_PUBLIC = process.env.IS_PUBLIC;
@@ -182,16 +187,23 @@ easyControllers.createAllControllers(app, { fileTest: f => !/-es6.js$/.test(f) }
 
 const svelteRouter = express.Router();
 
-const svelteModules = ["", "login", "books", "subjects", "settings", "scan", "home", "view", "styledemo", "admin"];
-svelteModules.forEach(name => svelteRouter.get("/" + name, browseToSvelte));
-//svelteRouter.get("/login", browseToReact);
-
-function browseToSvelte(request, response) {
+const browseToSvelte = moduleName => (request, response) => {
   if (!request.user) {
     clearAllCookies(response);
   }
-  response.sendFile(path.join(__dirname + "/svelte/dist/index.html"));
-}
+
+  const file = fs.readFileSync(path.join(__dirname, "/svelte/dist/index.html"), "utf8");
+  const { html, css, head } = SvelteAppComponent.render({ serverModule: moduleName || "home" });
+
+  response.writeHead(200, { "Content-Type": "text/html" });
+  response.write(file.replace(`<div id="home"></div>`, `<div id="home">${html}</div>`).replace("</head>", `${head}</head>`));
+  response.end();
+  //response.sendFile(path.join(__dirname + "/svelte/dist/index.html"));
+};
+
+const svelteModules = ["", "login", "books", "subjects", "settings", "scan", "home", "view", "styledemo", "admin"];
+svelteModules.forEach(name => svelteRouter.get("/" + name, browseToSvelte(name)));
+//svelteRouter.get("/login", browseToReact);
 
 app.use(subdomain("svelte", svelteRouter));
 
