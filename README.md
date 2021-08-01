@@ -14,3 +14,13 @@ I initially made this with the goal of creating iterations of the app with React
 The current React iteration uses TypeScript and vanilla Hooks, and is in the `react` directory.
 
 Future iterations may potentially look at ... whatever is thriving whenever the React version is done, if it ever is...
+
+# Contributing Code
+
+You'll need [Node](https://github.com/nvm-sh/nvm) and [MongoDB](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/) installed on your system. Then:
+
+```
+git clone git@github.com:arackaf/booklist.git
+npm install
+cp .env.example .env
+```

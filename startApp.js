@@ -25,7 +25,7 @@ import { Strategy as RememberMeStrategy } from "passport-remember-me";
 import { easyControllers } from "easy-express-controllers";
 import expressWsImport from "express-ws";
 
-import expressGraphql from "express-graphql";
+import { graphqlHTTP } from "express-graphql";
 
 import { middleware } from "generic-persistgraphql";
 import { getPublicGraphqlSchema, getGraphqlSchema } from "./node/util/graphqlUtils";
@@ -204,7 +204,7 @@ middleware(app, { url: "/graphql", x: "REACT", mappingFile: path.resolve(__dirna
 
 app.use(
   "/graphql",
-  expressGraphql({
+  graphqlHTTP({
     schema: executableSchema,
     graphiql: true,
     rootValue: root
@@ -215,7 +215,7 @@ const { rootPublic, executableSchemaPublic } = getPublicGraphqlSchema();
 app.use(
   "/graphql-public",
   cors(),
-  expressGraphql({
+  graphqlHTTP({
     schema: executableSchemaPublic,
     graphiql: true,
     rootValue: rootPublic
